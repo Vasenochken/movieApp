@@ -1,0 +1,12 @@
+.movies-list {
+  padding-top: 19px;
+  padding-left: 32px;
+  padding-right: 40px;
+  display: flex;
+  width: 1010px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  column-gap: 36px;
+  row-gap: 35px;
+  background-color: #FFFFFF;
+}
