@@ -1,36 +1,50 @@
 import { Component } from 'react'
 
 import ServiceApi from '../../service/service'
+import MyContext from '../context/context'
+import ToggleTab from '../toggle-tab/toggle-tab'
 import MoviesList from '../movies-list/movies-list'
-// import ButtonsSwitch from '../buttons-switch/buttons-switch'
-// import SearchPanel from '../search-panel/search-panel'
+import RatedList from '../rated-list/rated-list'
+
 import './app.css'
+
 export default class App extends Component {
   constructor() {
     super()
     this.state = {
-      error: null,
-      movies: [],
-      isLoaded: false,
+      pageTab: 'search',
+      genres: [],
     }
     this.api = new ServiceApi()
   }
-  componentDidMount() {
-    this.api.getAllMovies().then((body) => {
-      this.setState({
-        isLoaded: true,
-        movies: body.results,
-      })
+
+  changePage = (tab) => {
+    this.setState({
+      pageTab: tab,
     })
   }
+
+  getGenres = () => {
+    this.api.getGenres().then((res) => this.setState({ genres: res.genres }))
+  }
+
+  componentDidMount() {
+    this.getGenres()
+  }
+
   render() {
-    const { movies } = this.state
+    const { genres, pageTab } = this.state
+    const viewTab = (pageTab) => {
+      if (pageTab === 'search') return <MoviesList />
+      else if (pageTab === 'rated') return <RatedList />
+    }
     return (
-      <section className="movie-app">
-        {/* <ButtonsSwitch />
-        <SearchPanel /> */}
-        <MoviesList dataMovies={movies} />
-      </section>
+      <MyContext.Provider value={genres}>
+        <section className="movie-app">
+          <ToggleTab changePage={this.changePage} active={pageTab} />
+          {viewTab(pageTab)}
+        </section>
+      </MyContext.Provider>
     )
   }
 }
