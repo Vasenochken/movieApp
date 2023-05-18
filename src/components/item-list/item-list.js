@@ -17,6 +17,7 @@ export default class ItemList extends Component {
       dataGenres,
       rating,
       countStars,
+      sendRateStars,
     } = this.props
 
     const posterIMG = (poster) => {
@@ -67,7 +68,11 @@ export default class ItemList extends Component {
             <Genres dataGenres={dataGenres} />
           </div>
           <p className="description">{formatText(description)}</p>
-          <Stars stars={getStars(countStars)} id={id} />
+          <Stars
+            sendRateStars={sendRateStars}
+            stars={getStars(countStars)}
+            id={id}
+          />
         </div>
       </li>
     )

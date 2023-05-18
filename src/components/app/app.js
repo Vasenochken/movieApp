@@ -1,6 +1,7 @@
 import { Component } from 'react'
 
 import ServiceApi from '../../service/service'
+import GuestSession from '../../service/guest-session'
 import MyContext from '../context/context'
 import ToggleTab from '../toggle-tab/toggle-tab'
 import MoviesList from '../movies-list/movies-list'
@@ -14,8 +15,15 @@ export default class App extends Component {
     this.state = {
       pageTab: 'search',
       genres: [],
+      guestToken: '',
+      dataRated: {
+        moviesRated: [],
+        totalPage: 0,
+        page: 1,
+      },
     }
     this.api = new ServiceApi()
+    this.guest = new GuestSession()
   }
 
   changePage = (tab) => {
@@ -25,18 +33,58 @@ export default class App extends Component {
   }
 
   getGenres = () => {
-    this.api.getGenres().then((res) => this.setState({ genres: res.genres }))
+    this.api
+      .getGenres()
+      .then((res) => this.setState({ genres: res.genres }))
+      .catch((e) => console.log(e.name))
+  }
+
+  getAllMovies = (movieName) => {
+    return this.api.getAllMovies(`${movieName}`)
+  }
+
+  getPageMovies = (movieName, numPage) => {
+    return this.api.getPageMovies(`${movieName}`, `${numPage}`)
+  }
+
+  sendRateStars = (id, countStars) => {
+    this.guest.postRateStars(id, countStars).catch((e) => e.name)
+  }
+
+  getGuestSession = (page = 1) => {
+    return this.guest.getSession(localStorage.getItem('guest'), page)
+  }
+
+  getPageSession = (page) => {
+    console.log('app_getPSess', ' numPage:', page)
+    return this.api.getSession(localStorage.getItem('guest'), page)
   }
 
   componentDidMount() {
     this.getGenres()
+    this.guest.getToken()
   }
 
   render() {
     const { genres, pageTab } = this.state
     const viewTab = (pageTab) => {
-      if (pageTab === 'search') return <MoviesList />
-      else if (pageTab === 'rated') return <RatedList />
+      if (pageTab === 'search')
+        return (
+          <MoviesList
+            pageTab={pageTab}
+            sendRateStars={this.sendRateStars}
+            getAllMovies={this.getAllMovies}
+            getPageMovies={this.getPageMovies}
+          />
+        )
+      else if (pageTab === 'rated')
+        return (
+          <RatedList
+            pageTab={pageTab}
+            getGuestSession={this.getGuestSession}
+            getPageSession={this.getPageSession}
+          />
+        )
     }
     return (
       <MyContext.Provider value={genres}>

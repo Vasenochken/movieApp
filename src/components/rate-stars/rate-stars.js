@@ -1,15 +1,9 @@
 import { Component } from 'react'
 import { Rate } from 'antd'
 
-import ServiceApi from '../../service/service'
-
 export default class Stars extends Component {
-  constructor() {
-    super()
-    this.api = new ServiceApi()
-  }
   handleClickStars = (countStars) => {
-    this.api.postRateStars(this.props.id, countStars)
+    this.props.sendRateStars(this.props.id, countStars)
   }
   render() {
     const { stars } = this.props

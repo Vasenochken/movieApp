@@ -1,6 +1,6 @@
 import { Component } from 'react'
+import { Spin } from 'antd'
 
-import ServiceApi from '../../service/service'
 import SearchPanel from '../search-panel/search-panel'
 import ItemList from '../item-list/item-list'
 import MyPagination from '../pagination/my-pagination'
@@ -20,15 +20,11 @@ export default class MoviesList extends Component {
       totalPage: null,
       isLoading: null,
     }
-    this.api = new ServiceApi()
-  }
-  componentDidMount() {
-    this.api.getToken()
   }
 
   searchMovie = (movieName) => {
     if (movieName.trim() !== '') {
-      this.api.getAllMovies(`${movieName}`).then((res) => {
+      this.props.getAllMovies(movieName).then((res) => {
         if (res.results.length !== 0) {
           this.setState({
             queryMovie: movieName,
@@ -38,6 +34,7 @@ export default class MoviesList extends Component {
           })
         } else {
           this.setState({
+            isLoading: true,
             filmNotFound: true,
           })
         }
@@ -46,7 +43,7 @@ export default class MoviesList extends Component {
   }
 
   searchPageMovie = (movieName, numPage) => {
-    this.api.getPageMovies(`${movieName}`, `${numPage}`).then((res) => {
+    this.props.getPageMovies(`${movieName}`, `${numPage}`).then((res) => {
       this.setState({
         queryMovie: movieName,
         dataMovies: res.results,
@@ -56,16 +53,15 @@ export default class MoviesList extends Component {
     })
   }
 
-  componentWillUnmount() {
-    console.log('componentWillUnmount()')
-  }
-
   render() {
-    const { dataMovies, totalPage, page, queryMovie, filmNotFound } = this.state
+    const { dataMovies, totalPage, page, queryMovie, filmNotFound, isLoading } =
+      this.state
+    const { pageTab, sendRateStars } = this.props
     return (
       <div className="box">
         <SearchPanel searchMovie={this.searchMovie} />
         <Offline />
+        {isLoading ? <Spin className="spin" size="large" /> : null}
         {dataMovies.length === 0 && filmNotFound ? <FilmNotFound /> : null}
         <div>
           <ul className="movies-list">
@@ -81,6 +77,7 @@ export default class MoviesList extends Component {
                   dataGenres={movie.genre_ids}
                   rating={movie.vote_average}
                   countStars={movie.rating}
+                  sendRateStars={sendRateStars}
                 />
               )
             })}
@@ -88,7 +85,7 @@ export default class MoviesList extends Component {
         </div>
         {dataMovies.length > 0 ? (
           <MyPagination
-            className="pagination-box"
+            pageTab={pageTab}
             searchPageMovie={this.searchPageMovie}
             page={page}
             totalPage={totalPage}
