@@ -12,10 +12,11 @@ export default class GuestSession extends Component {
     let url = new URL('3/authentication/guest_session/new', this.state.url)
     url.searchParams.set('api_key', this.state.apiKey)
     try {
-      const token = await fetch(url)
-      const result = await token.json()
+      const result = await fetch(url)
       if (!result.ok) throw new Error('Error send...')
-      localStorage.setItem('guest', `${result.guest_session_id}`)
+      const resultJson = await result.json()
+      console.log('resGuestToken: ', resultJson.guest_session_id)
+      return await resultJson.guest_session_id
     } catch (error) {
       console.log('Error', error)
     }
@@ -37,9 +38,8 @@ export default class GuestSession extends Component {
       console.log('Error', error)
     }
   }
-  async postRateStars(movieId, countStars) {
-    const sId = localStorage.getItem('guest')
-
+  async postRateStars(token, movieId, countStars) {
+    const sId = token
     let url = new URL(`3/movie/${movieId}/rating`, this.state.url)
     url.searchParams.set('api_key', this.state.apiKey)
     url.searchParams.set('guest_session_id', sId)

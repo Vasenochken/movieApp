@@ -39,6 +39,16 @@ export default class App extends Component {
       .catch((e) => console.log(e.name))
   }
 
+  getToken = () => {
+    this.guest
+      .getToken()
+      .then((token) => {
+        localStorage.setItem('guest', `${token}`)
+        this.setState({ guestToken: token })
+      })
+      .catch((e) => console.log(e.name))
+  }
+
   getAllMovies = (movieName) => {
     return this.api.getAllMovies(`${movieName}`)
   }
@@ -52,20 +62,20 @@ export default class App extends Component {
   }
 
   getGuestSession = (page = 1) => {
-    return this.guest.getSession(localStorage.getItem('guest'), page)
+    return this.guest.getSession(this.state.guestToken, page)
   }
 
   getPageSession = (page) => {
-    console.log('app_getPSess', ' numPage:', page)
-    return this.api.getSession(localStorage.getItem('guest'), page)
+    return this.api.getSession(this.state.guestToken, page)
   }
 
-  componentDidMount() {
-    this.getGenres()
-    this.guest.getToken()
+  async componentDidMount() {
+    await this.getGenres()
+    await this.getToken()
   }
 
   render() {
+    console.log(this.state)
     const { genres, pageTab } = this.state
     const viewTab = (pageTab) => {
       if (pageTab === 'search')
