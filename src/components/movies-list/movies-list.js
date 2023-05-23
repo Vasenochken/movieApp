@@ -1,11 +1,11 @@
 import { Component } from 'react'
-import { Spin } from 'antd'
 
 import SearchPanel from '../search-panel/search-panel'
 import ItemList from '../item-list/item-list'
 import MyPagination from '../pagination/my-pagination'
 import Offline from '../offline/offline'
 import FilmNotFound from '../film-notfound/film-notfound'
+import SpinLoad from '../spin-load/spin-load'
 
 import './movies-list.css'
 
@@ -18,27 +18,41 @@ export default class MoviesList extends Component {
       filmNotFound: false,
       page: 0,
       totalPage: null,
-      isLoading: null,
+      isLoading: true,
     }
   }
 
   searchMovie = (movieName) => {
+    console.log('movieName: ', movieName)
     if (movieName.trim() !== '') {
-      this.props.getAllMovies(movieName).then((res) => {
-        if (res.results.length !== 0) {
-          this.setState({
-            queryMovie: movieName,
-            dataMovies: res.results,
-            totalPage: res.total_pages,
-            page: res.page,
-          })
-        } else {
-          this.setState({
-            isLoading: true,
-            filmNotFound: true,
-          })
-        }
-      })
+      this.props
+        .getAllMovies(movieName)
+        .then((res) => {
+          console.log('res: ', res)
+          if (res.results.length !== 0) {
+            this.setState({
+              queryMovie: movieName,
+              dataMovies: res.results,
+              totalPage: res.total_pages,
+              page: res.page,
+              isLoading: false,
+              filmNotFound: false,
+            })
+          } else {
+            this.setState({
+              queryMovie: movieName,
+              dataMovies: res.results,
+              totalPage: res.total_pages,
+              page: res.page,
+              isLoading: false,
+              filmNotFound: true,
+            })
+          }
+        })
+        .catch((e) => {
+          console.log(e)
+          this.setState({ isLoading: true })
+        })
     }
   }
 
@@ -61,7 +75,7 @@ export default class MoviesList extends Component {
       <div className="box">
         <SearchPanel searchMovie={this.searchMovie} />
         <Offline />
-        {isLoading ? <Spin className="spin" size="large" /> : null}
+        {isLoading ? <SpinLoad /> : null}
         {dataMovies.length === 0 && filmNotFound ? <FilmNotFound /> : null}
         <div>
           <ul className="movies-list">

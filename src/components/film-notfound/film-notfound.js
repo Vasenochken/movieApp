@@ -3,6 +3,7 @@ import { Component } from 'react'
 
 export default class FilmNotFound extends Component {
   render() {
+    console.log('i am heare')
     return (
       <Space
         direction="vertical"

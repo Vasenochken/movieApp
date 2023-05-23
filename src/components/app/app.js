@@ -43,8 +43,13 @@ export default class App extends Component {
     this.guest
       .getToken()
       .then((token) => {
-        localStorage.setItem('guest', `${token}`)
-        this.setState({ guestToken: token })
+        if (localStorage.getItem('guest') === token) {
+          // localStorage.setItem('guest', `${token}`)
+          this.setState({ guestToken: token })
+        } else {
+          localStorage.setItem('guest', `${token}`)
+          this.setState({ guestToken: token })
+        }
       })
       .catch((e) => console.log(e.name))
   }
@@ -58,7 +63,9 @@ export default class App extends Component {
   }
 
   sendRateStars = (id, countStars) => {
-    this.guest.postRateStars(id, countStars).catch((e) => e.name)
+    this.guest
+      .postRateStars(this.state.guestToken, id, countStars)
+      .catch((e) => e.name)
   }
 
   getGuestSession = (page = 1) => {
@@ -75,7 +82,7 @@ export default class App extends Component {
   }
 
   render() {
-    console.log(this.state)
+    // console.log(this.state)
     const { genres, pageTab } = this.state
     const viewTab = (pageTab) => {
       if (pageTab === 'search')

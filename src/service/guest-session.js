@@ -15,7 +15,7 @@ export default class GuestSession extends Component {
       const result = await fetch(url)
       if (!result.ok) throw new Error('Error send...')
       const resultJson = await result.json()
-      console.log('resGuestToken: ', resultJson.guest_session_id)
+      // console.log('resGuestToken: ', resultJson.guest_session_id)
       return await resultJson.guest_session_id
     } catch (error) {
       console.log('Error', error)
