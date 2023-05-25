@@ -12,7 +12,6 @@ export default class SearchPanel extends Component {
 
   handleChange = debounce((e) => {
     const query1 = e.target.value
-    console.log('query1: ', query1)
     this.setState({ query: query1 })
     this.props.searchMovie(query1)
   }, 500)

@@ -6,6 +6,7 @@ import MyContext from '../context/context'
 import ToggleTab from '../toggle-tab/toggle-tab'
 import MoviesList from '../movies-list/movies-list'
 import RatedList from '../rated-list/rated-list'
+import ErrorIndicator from '../error/error'
 
 import './app.css'
 
@@ -21,9 +22,21 @@ export default class App extends Component {
         totalPage: 0,
         page: 1,
       },
+      error: false,
+      errorMessage: '',
     }
     this.api = new ServiceApi()
     this.guest = new GuestSession()
+  }
+
+  onError = (e) => {
+    console.log('I AM ERROR!')
+    console.log(e)
+    console.log(e.message)
+    this.setState({
+      error: true,
+      errorMessage: e.message,
+    })
   }
 
   changePage = (tab) => {
@@ -35,23 +48,24 @@ export default class App extends Component {
   getGenres = () => {
     this.api
       .getGenres()
-      .then((res) => this.setState({ genres: res.genres }))
-      .catch((e) => console.log(e.name))
+      .then((res) => {
+        this.setState({ genres: res.genres })
+      })
+      .catch(this.onError)
   }
 
   getToken = () => {
-    this.guest
-      .getToken()
-      .then((token) => {
-        if (localStorage.getItem('guest') === token) {
-          // localStorage.setItem('guest', `${token}`)
+    const token = localStorage.getItem('guest')
+    if (token) this.setState({ guestToken: token })
+    else {
+      this.guest
+        .getToken()
+        .then((token) => {
           this.setState({ guestToken: token })
-        } else {
           localStorage.setItem('guest', `${token}`)
-          this.setState({ guestToken: token })
-        }
-      })
-      .catch((e) => console.log(e.name))
+        })
+        .catch(this.onError)
+    }
   }
 
   getAllMovies = (movieName) => {
@@ -65,7 +79,7 @@ export default class App extends Component {
   sendRateStars = (id, countStars) => {
     this.guest
       .postRateStars(this.state.guestToken, id, countStars)
-      .catch((e) => e.name)
+      .catch(this.onError)
   }
 
   getGuestSession = (page = 1) => {
@@ -76,19 +90,22 @@ export default class App extends Component {
     return this.api.getSession(this.state.guestToken, page)
   }
 
-  async componentDidMount() {
-    await this.getGenres()
-    await this.getToken()
+  componentDidMount() {
+    this.getGenres()
+    this.getToken()
   }
 
   render() {
-    // console.log(this.state)
-    const { genres, pageTab } = this.state
+    const { genres, pageTab, error, errorMessage } = this.state
+    const errorMessage1 = error ? (
+      <ErrorIndicator errorMessage={errorMessage} />
+    ) : null
     const viewTab = (pageTab) => {
       if (pageTab === 'search')
         return (
           <MoviesList
             pageTab={pageTab}
+            onError={this.onError}
             sendRateStars={this.sendRateStars}
             getAllMovies={this.getAllMovies}
             getPageMovies={this.getPageMovies}
@@ -98,6 +115,7 @@ export default class App extends Component {
         return (
           <RatedList
             pageTab={pageTab}
+            onError={this.onError}
             getGuestSession={this.getGuestSession}
             getPageSession={this.getPageSession}
           />
@@ -106,8 +124,10 @@ export default class App extends Component {
     return (
       <MyContext.Provider value={genres}>
         <section className="movie-app">
+          {/* {errorMessage1} */}
           <ToggleTab changePage={this.changePage} active={pageTab} />
           {viewTab(pageTab)}
+          {errorMessage1}
         </section>
       </MyContext.Provider>
     )

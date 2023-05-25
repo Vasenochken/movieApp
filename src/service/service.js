@@ -15,10 +15,13 @@ export default class ServiceApi extends Component {
     url.searchParams.set('query', movieName)
     try {
       const result = await fetch(url)
-      if (!result.ok) throw new Error('Error send...')
+      if (!result.ok)
+        throw new Error(
+          `Failed to Fetch: ${url} Description: ${result.statusText}`,
+        )
       return await result.json()
-    } catch (error) {
-      console.log('Error', error)
+    } catch (e) {
+      throw new Error('Ne otveta ne priveta at servera')
     }
   }
   async getPageMovies(movieName, page) {
@@ -28,10 +31,13 @@ export default class ServiceApi extends Component {
     url.searchParams.set('page', page)
     try {
       const result = await fetch(url)
-      if (!result.ok) throw new Error('Error send...')
+      if (!result.ok)
+        throw new Error(
+          `Failed to Fetch: ${url} Description: ${result.statusText}`,
+        )
       return await result.json()
-    } catch (error) {
-      console.log('Error', error)
+    } catch (e) {
+      throw new Error('Server ne rabotaet')
     }
   }
   async getGenres() {
@@ -39,10 +45,12 @@ export default class ServiceApi extends Component {
     url.searchParams.set('api_key', this.state.apiKey)
     try {
       const result = await fetch(url)
-      if (!result.ok) throw new Error('Error send...')
+      if (!result.ok) {
+        throw new Error('Failed to Fetch')
+      }
       return await result.json()
-    } catch (error) {
-      console.log('Error', error)
+    } catch (e) {
+      throw new Error('Failed get genres')
     }
   }
 }

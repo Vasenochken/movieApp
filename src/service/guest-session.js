@@ -13,12 +13,11 @@ export default class GuestSession extends Component {
     url.searchParams.set('api_key', this.state.apiKey)
     try {
       const result = await fetch(url)
-      if (!result.ok) throw new Error('Error send...')
+      if (!result.ok) throw new Error('Failed to Fetch')
       const resultJson = await result.json()
-      // console.log('resGuestToken: ', resultJson.guest_session_id)
       return await resultJson.guest_session_id
-    } catch (error) {
-      console.log('Error', error)
+    } catch (e) {
+      throw new Error('Failed get guest token')
     }
   }
   async getSession(guestSessionId, page) {
@@ -30,12 +29,15 @@ export default class GuestSession extends Component {
     url.searchParams.set('page', page)
     url.searchParams.set('sort_by', 'created_at.asc')
     try {
-      const session = await fetch(url)
-      if (!session.ok) throw new Error('Error send...')
-      const sessionJson = session.json()
+      const result = await fetch(url)
+      if (!result.ok)
+        throw new Error(
+          `Failed to Fetch: ${url} Description: ${result.statusText}`,
+        )
+      const sessionJson = result.json()
       return await sessionJson
-    } catch (error) {
-      console.log('Error', error)
+    } catch (e) {
+      throw new Error('Ne poluchil tvoi guest session')
     }
   }
   async postRateStars(token, movieId, countStars) {
@@ -51,10 +53,13 @@ export default class GuestSession extends Component {
           'Content-type': 'application/json; charset=UTF-8',
         },
       })
-      if (!result.ok) throw new Error('Error send...')
+      if (!result.ok)
+        throw new Error(
+          `Failed to Fetch: ${url} Description: ${result.statusText}`,
+        )
       return await result
-    } catch (error) {
-      console.log('Error', error)
+    } catch (e) {
+      throw new Error('Ne otpravlauca stars')
     }
   }
 }

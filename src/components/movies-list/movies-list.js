@@ -18,17 +18,16 @@ export default class MoviesList extends Component {
       filmNotFound: false,
       page: 0,
       totalPage: null,
-      isLoading: true,
+      isLoading: false,
     }
   }
 
   searchMovie = (movieName) => {
-    console.log('movieName: ', movieName)
+    this.setState({ isLoading: true })
     if (movieName.trim() !== '') {
       this.props
         .getAllMovies(movieName)
         .then((res) => {
-          console.log('res: ', res)
           if (res.results.length !== 0) {
             this.setState({
               queryMovie: movieName,
@@ -40,31 +39,35 @@ export default class MoviesList extends Component {
             })
           } else {
             this.setState({
-              queryMovie: movieName,
-              dataMovies: res.results,
-              totalPage: res.total_pages,
-              page: res.page,
               isLoading: false,
               filmNotFound: true,
             })
           }
         })
         .catch((e) => {
-          console.log(e)
-          this.setState({ isLoading: true })
+          this.setState({ isLoading: false })
+          this.props.onError(e)
         })
     }
   }
 
   searchPageMovie = (movieName, numPage) => {
-    this.props.getPageMovies(`${movieName}`, `${numPage}`).then((res) => {
-      this.setState({
-        queryMovie: movieName,
-        dataMovies: res.results,
-        totalPage: res.total_pages,
-        page: res.page,
+    this.setState({ isLoading: true })
+    this.props
+      .getPageMovies(`${movieName}`, `${numPage}`)
+      .then((res) => {
+        this.setState({
+          queryMovie: movieName,
+          dataMovies: res.results,
+          totalPage: res.total_pages,
+          page: res.page,
+          isLoading: false,
+        })
       })
-    })
+      .catch((e) => {
+        this.setState({ isLoading: false })
+        this.props.onError(e)
+      })
   }
 
   render() {

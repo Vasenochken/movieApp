@@ -17,25 +17,31 @@ export default class RatedList extends Component {
   }
 
   getGuestSession = () => {
-    this.props.getGuestSession().then((res) => {
-      this.setState({
-        dataRated: res.results,
-        page: res.page,
-        totalPage: res.total_pages,
-        totalResults: res.total_results,
+    this.props
+      .getGuestSession()
+      .then((res) => {
+        this.setState({
+          dataRated: res.results,
+          page: res.page,
+          totalPage: res.total_pages,
+          totalResults: res.total_results,
+        })
       })
-    })
+      .catch((e) => this.props.onEror(e))
   }
 
   getPageSession = (page) => {
-    this.props.getPageSession(page).then((res) => {
-      this.setState({
-        dataRated: res.results,
-        page: res.page,
-        totalPage: res.total_pages,
-        totalResults: res.total_results,
+    this.props
+      .getPageSession(page)
+      .then((res) => {
+        this.setState({
+          dataRated: res.results,
+          page: res.page,
+          totalPage: res.total_pages,
+          totalResults: res.total_results,
+        })
       })
-    })
+      .catch((e) => this.props.onEror(e))
   }
 
   componentDidMount() {
